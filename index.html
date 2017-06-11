@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>七夕言情案例</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/a_back.css">
+    <link rel="stylesheet" href="css/b_back.css">
+    <link rel="stylesheet" href="css/c_back.css">
+    <script src='js/jquery-1.8.3.min.js'></script>
+    <script src='js/Swipe.js'></script>
+    <script src='js/boyWalk.js'></script>
+    <script src='js/transition.js'></script>
+  </head>
+  <body>
+    <div class="content" id='content'>
+      <ul class="content-warp">
+        <li>
+          <div class="a_back">
+            <div class="a_back_top"></div>
+            <div class="a_back_middle"></div>
+            <div class="a_back_bottom"></div>
+            <div id="sun"></div>
+            <div class="cloudArea">
+                <div class="cloud cloud1"></div>
+                <div class="cloud cloud2"></div>
+            </div>
+          </div>
+
+        </li>
+        <li>
+          <div class="b_back"></div>
+          <div class="b_back_dark"></div>
+          <div class="shop">
+            <div class="door">
+              <div class="door-left"></div>
+              <div class="door-right"></div>
+            </div>
+            <div class="lamp"></div>
+          </div>
+          <div class="bird"></div>
+        </li>
+        <li>
+          <div class="c_back">
+            <div class="c_back_top"></div>
+            <div class="c_back_middle"></div>
+            <div class="c_back_bottom"></div>
+          </div>
+          <div class="girl"></div>
+          <div class="bridge-bottom">
+            <div class="water">
+              <div class="water1" id="water1"></div>
+              <div class="water2" id="water2"></div>
+              <div class="water3" id="water3"></div>
+              <div class="water4" id="water4"></div>
+            </div>
+          </div>
+          <ul class="stars">
+              <li class="stars1"></li>
+              <li class="stars2"></li>
+              <li class="stars3"></li>
+              <li class="stars4"></li>
+              <li class="stars5"></li>
+              <li class="stars6"></li>
+          </ul>
+          <div class="logo"></div>
+        </li>
+      </ul>
+      <div id='snowflake'></div>
+      <div id="boy" class="charector"></div>
+    </div>
+    <script type='text/javascript'>
+      var swipe=Swipe($('#content'));
+
+      //页面滚动的函数
+      function scroolTo(time,count){
+        var distX=$('#content').width()*count;
+        swipe.scrool(distX,time);
+      }
+    
+
+      var runBoy=boyWalk();
+/*      runBoy.walkTo(2000,0.5).then(function(){
+        runBoy.pasueWalk();
+      }).then(function(){
+        lamp.bright();
+        return openDoor();
+      }).then(function(){
+        return runBoy.shopping();
+      }).then(function(){
+        return runBoy.flowerWalk();
+      }).then(function(){
+        return runBoy.endShop();
+      }).then(function(){
+        runBoy.pauseflowerWalk();
+      });*/
+
+
+
+/*    var setTime = {
+        walkToThird  : 6000, //走第一段路，1/3屏幕宽度所用的时间，走完毕背景动
+        walkToMiddle : 6500, //走第二段路，1/2屏幕宽度所用的时间，走到商店
+        walkToEnd    : 6500, //走第三段路，走到桥
+        
+        walkTobridge : 2000, //上桥
+        bridgeWalk   : 2000, //桥上走路到中间
+
+        walkToShop   : 1000, //进商店时间
+        walkOutShop  : 1000, //出商店时间
+        
+        openDoorTime : 800, //开门时间
+        shutDoorTime : 500, //关门时间
+        
+        waitRotate   : 850,//男女等待转身的时间
+        waitFlower   : 800 //模拟取花的等待时间
+    }*/
+
+
+      runBoy.walkTo(6000,0.33).then(function(){
+          scroolTo(6500,1);
+      }).then(function(){
+        return runBoy.walkTo(6000,0.5);
+      }).then(function(){
+        runBoy.pasueWalk();
+        lamp.bright();
+        return openDoor();
+      }).then(function(){
+        runBoy.startWalk();
+        return runBoy.shopping();
+      }).then(function(){
+        bird.fly();
+        return runBoy.flowerWalk();
+      }).then(function(){
+        return runBoy.endShop();
+      }).then(function(){
+        lamp.dark();
+        return closeDoor();
+      }).then(function(){
+        scroolTo(6500,2);
+        return runBoy.walkTo(6500,0.1);
+      }).then(function(){  
+        meetGirl();
+      });
+   
+
+      //开关门效果的实现
+      /*
+        实现方法的理解：
+        实现开门关门的动画很简单，就是利用transition这个函数来改变左右门的
+        left值实现动画效果，但是为了让程序具有异步性，我们要知道开门这个动作什么时候完成，关门这个动作什么时候完成，也就是说什么时候要将我们的变量var dtd=
+        $.Deferred();resolve掉，让它去运行下面的步骤动画。所以我们设置了一个计数器，
+        count，赋值为2，当左右门分别完成了自己的动画时，就改变count的值，例如。左门动画先执行（这个时间差当然是极小的了），count就自减为1，然后右门执行完的时候
+        就要将dtd给resolve掉，所以，这就代表一个开门（关门）事件的完成。
+        也就是说，门分为左门和右门，我们要知道这两个门什么时候都完成了自己的动画，这时候才能判定这个开门或关门的事件完成了。
+      */
+      function openDoor(){
+        return doorAction('-50%','100%',2000);
+      }
+      function closeDoor(){
+        return doorAction('0%','50%',2000);
+      }
+      function doorAction(left1,left2,time){
+        var dtd=$.Deferred();
+        var count=2;
+        var complete=function(){
+          if(count==1){
+            dtd.resolve();
+            return;  
+          }
+          count--;
+        };
+  
+        var leftDoor=$('.door-left');
+        var rightDoor=$('.door-right');
+        leftDoor.transition({
+          'left':left1
+        },time,complete);
+
+        rightDoor.transition({
+          'left':left2
+        },time,complete);
+
+        return dtd;
+
+      }
+
+
+      //var dtd=$.Deferred();完成动画后dtd.resolve();函数要返回dtd对象
+
+
+      /*灯的动画*/
+      var lamp={
+        elem:$('.b_back'),
+        bright:function(){
+          this.elem.addClass('lamp-bright');
+        },
+        dark:function(){
+          this.elem.removeClass('lamp-bright');
+        }
+      };
+
+      //创建鸟飞的动画
+      var bird={
+        elem:$('.bird'),
+        fly:function(){
+          this.elem.addClass('birdFly');
+          this.elem.transition({
+            right:$('#content').width()
+          },15000,'linear');
+        }
+      };
+
+      //获取数据
+      var getValue=function(className){
+        var $ele=$(''+className+'');
+        return{
+          height:$ele.height(),
+          top:$ele.position().top
+        }
+      };
+
+      //获取桥的高度
+      var bridgeY=function(){
+          var data=getValue('.c_back_middle');
+          return data.top;
+      }();
+      //小女孩的位置
+      var girl={
+        elem:$('.girl'),
+        getHeight:function(){
+          return this.elem.height();
+        },
+        setOffset:function(){
+          this.elem.css({
+            left:$('#content').width()/2,
+            top:bridgeY-this.getHeight()
+          });
+        },
+        rotate:function(){
+          this.elem.addClass('girl-rotate');
+        }
+      }
+      girl.setOffset();
+
+
+      //小男孩上桥的过程
+
+      function meetGirl(){
+        //走到桥底
+        runBoy.walkTo(2000,0.15).then(function(){
+          return runBoy.walkTo(1500,0.25,(bridgeY-girl.getHeight())/$('#content').height());
+        }).then(function(){
+          var proportionX=(girl.elem.position().left-$('#boy').width())/$('#content').width();
+          return runBoy.walkTo(1500,proportionX);
+        }).then(function(){
+          runBoy.resetOriginal();
+        }).then(function(){
+          rotate();
+        });
+      }
+      
+      var logo={
+        elem:$('.logo'),
+        run:function(){
+          this.elem.addClass('lightSpeedIn').on('animationend',function(){
+            $(this).addClass('logoshake');
+            $(this).on('animationend',function(){
+              snowflake();
+              $(this).off();
+            });
+          });
+        }
+      };
+
+      function rotate(){
+        setTimeout(function(){
+            girl.rotate();
+            runBoy.rotate(function(){
+              logo.run();
+            });
+        },1000);
+      }
+
+      //飘花
+      function snowflake(){
+        var snowflakeURL=[
+          'images/snowflake/snowflake1.png',
+          'images/snowflake/snowflake2.png',
+          'images/snowflake/snowflake3.png',
+          'images/snowflake/snowflake4.png',
+          'images/snowflake/snowflake5.png',
+          'images/snowflake/snowflake6.png'
+        ];
+        var $snowContainer=$('#snowflake');
+        function getImageName(){
+          return snowflakeURL[Math.floor(Math.random()*6)];
+        }
+        function creatSnowBox(){
+          var url=getImageName();
+          return $('<div class="snowbox" />').css({
+            'width':'41px',
+            'height':'41px',
+            'zIndex':99999999,
+            'position':'absolute',
+            'top':'-41px',
+            'background':'url('+url+')'
+          }).addClass('snowRoll');
+        }
+
+         setInterval(function(){
+          var startPositionLeft=Math.random()*$('#content').width()-100,
+          startOpacity=1,
+          endPositionTop=$('#content').height()-41,
+          endPositionLeft=startPositionLeft-100+Math.random()*500,
+          duration=$('#content').height()*10+Math.random()*5000;
+
+          //随机透明度
+          var randomOpacity=Math.random();
+          randomOpacity=randomOpacity<0.4?startOpacity:randomOpacity;
+
+
+          //创建一个雪花
+          var $flake=creatSnowBox();
+          $flake.css({
+            left:startPositionLeft,
+            opacity:randomOpacity
+          });
+
+          //加入到容器
+          $snowContainer.append($flake);
+
+          $flake.transition({
+            'top':endPositionTop+'px',
+            'left':endPositionLeft+'px',
+            'opacity':0.7
+          },duration,'ease-out',function(){
+             $(this).remove();//结束后删除
+          });
+
+        },200);
+
+      }
+
+
+
+      //音乐播放
+
+      var audioConfig={
+        playURL:'music/happy.wav',
+        cycleURL:'music/circulation.wav'
+      };
+
+      function html5Audio(url,isloop){
+        var audio=new Audio(url);
+        audio.autoPlay=true;
+        audio.loop=isloop || false;
+        audio.play();
+        return {
+           end:function(callback){
+              audio.addEventListener('ended',function(){
+                callback();
+              },false);
+           }
+        }　
+      }
+
+      var audio1=html5Audio(audioConfig.playURL);
+      audio1.end(function(){
+        html5Audio(audioConfig.cycleURL,true);
+      });
+
+
+
+
+      //rem布局
+      var docEl=document.documentElement,
+          resizeEvt='orientationchange' in  window ? 'orientationchange' : 'resize',
+          recalc=function(){
+            var clientWidth=docEl.clientWidth;
+            if(!clientWidth) return;
+            if(clientWidth>=640){
+              docEl.style.fontSize='100px';
+            }else{
+              docEl.style.fontSize=100*(clientWidth/640)+'px';
+            }
+          };
+    window.addEventListener(resizeEvt,recalc,false);
+    document.addEventListener('DOMContentLoaded',recalc,false);
+    </script>
+  </body>
+</html>
